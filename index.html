@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SurveyIO - Earn Money</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
+    
+    <style>
+        /* All your existing CSS styles here */
+        /* Universal Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #ff4500;
+            --dark-blue: #1a237e;
+            --light-gray: #f5f7fa;
+            --border-color: #e0e4e8;
+            --dark-blue-gray: #455a64;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --button-bg: #4a5568;
+            --button-text: #FFFFFF;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+            --card-padding: 1.25rem;
+            --card-radius: 12px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Page Structure */
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Login/Signup Page Styles */
+        .auth-container {
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .art-design-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            margin-bottom: 2rem;
+        }
+
+        .art-design-svg {
+            width: 80%;
+            max-width: 280px;
+            height: auto;
+        }
+
+        .auth-buttons {
+            margin-top: auto;
+        }
+
+        .auth-buttons h1 {
+            font-size: clamp(1.8rem, 8vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+        }
+
+        .main-button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--button-text);
+            background-color: var(--button-bg);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .main-button:hover {
+            background-color: #2d3748;
+            transform: translateY(-2px);
+        }
+
+        .secondary-button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .secondary-button:hover {
+            background-color: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        .form-container {
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .form-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.95rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2d3748;
+            transform: translateY(-2px);
+        }
+
+        .switch-form {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .switch-form a {
+            color: #007bff;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Marketplace Header */
+        .marketplace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color) 20%, var(--text-primary) 40%, var(--text-primary) 60%, var(--primary-color) 80%);
+            background-size: 200% auto;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: -200% center; }
+        }
+
+        .balance-display {
+            background: #000;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Task List Styles */
+        .task-list {
+            padding: 1rem;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+
+        .task-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: var(--card-padding);
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            background-color: #f8f9fa;
+        }
+
+        .task-card-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin: 0.75rem 0;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        .task-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .task-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .task-timer-status {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .task-timer-status.running {
+            color: var(--error-color);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Wallet Page Styles */
+        .wallet-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.3);
+            margin: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-chip {
+            width: 50px;
+            height: 40px;
+            background: #ffca28;
+            border-radius: 6px;
+        }
+
+        .wallet-status {
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.15);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+
+        .wallet-balance-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        #wallet-balance-amount {
+            font-size: 3.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .cash-out-section {
+            padding: 1rem;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        #withdrawal-progress {
+            background: var(--primary-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-label {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .cash-out-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            background-color: #e0e0e0;
+            color: #aaa;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .cash-out-btn:enabled {
+            background: linear-gradient(to right, #d32f2f, #e53935);
+            color: white;
+            cursor: pointer;
+        }
+
+        .cash-out-btn:enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .activities-section {
+            padding: 1rem;
+        }
+
+        .activities-section h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        #activities-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-details p {
+            margin: 0;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .activity-amount {
+            font-weight: 600;
+        }
+
+        .activity-amount.positive {
+            color: var(--success-color);
+        }
+
+        .activity-amount.negative {
+            color: var(--error-color);
+        }
+
+        /* Profile Page Styles */
+        .profile-display {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 3px solid var(--primary-color);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        #profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            margin: 0 0 1rem;
+        }
+
+        .profile-menu {
+            padding: 1rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .menu-content {
+            flex: 1;
+        }
+
+        .menu-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .menu-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn-container {
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 420px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 0.5rem 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+            color: #000; /* Black icons */
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--primary-color);
+        }
+
+        /* URL Modal */
+        .url-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .url-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .task-url {
+            word-break: break-all;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-continue {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-continue:hover {
+            background: #e03e00;
+        }
+
+        .btn-cancel {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-cancel:hover {
+            background: #d0d5dc;
+        }
+
+        /* Earnings Popup */
+        .earnings-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -100px;
+                opacity: 0;
+            }
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            min-height: calc(100vh - 120px);
+            padding-bottom: 80px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Payment Method Styles */
+        .payment-select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background-color: white;
+        }
+
+        .payment-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Login/Signup Pages -->
+        <div id="landing-page" class="page active">
+            <div class="auth-container">
+                <div class="art-design-container">
+                    <svg class="art-design-svg" viewBox="0 0 300 200">
+                        <path d="M50,50 C100,0 200,150 250,100" stroke="black" stroke-width="4" fill="none" />
+                        <path d="M40,42 C70,12 110,12 140,42" stroke="#FF6347" stroke-width="6" fill="none" stroke-linecap="round" />
+                        <path d="M110,19 C140,-1 180,-1 200,19" stroke="#8A2BE2" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(20, 150, 50)" />
+                        
+                        <g transform="translate(40, 90)">
+                            <rect x="0" y="0" width="60" height="40" rx="8" fill="#FFC107" />
+                            <circle cx="30" cy="20" r="10" fill="white" />
+                            <circle cx="10" cy="10" r="3" fill="white" />
+                            <rect x="65" y="5" width="4" height="10" fill="#FFC107" transform="rotate(15, 67, 10)" />
+                            <rect x="75" y="15" width="10" height="4" fill="#FFC107" />
+                        </g>
+
+                        <g transform="translate(180, 20)">
+                            <path d="M0,0 H60 V40 H20 L10,50 L10,40 H0 Z" fill="#2E8B57" rx="8" />
+                        </g>
+                        
+                        <g transform="translate(150, 130)">
+                            <path d="M0 15 L30 0 L80 0 L50 15 Z" fill="#1E90FF"/>
+                            <path d="M0 15 L0 30 L50 30 L50 15 Z" fill="#1E90FF"/>
+                            <path d="M50 15 L50 30 L80 15 L80 0 Z" fill="#4169E1"/>
+                            <rect x="35" y="3" width="10" height="8" fill="white" />
+                            <rect x="5" y="18" width="40" height="3" fill="#6495ED" />
+                            <rect x="5" y="24" width="40" height="3" fill="#6495ED" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="auth-buttons">
+                    <h1>Turn your opinions into a payday</h1>
+                    <button class="main-button" onclick="showPage('signup-page')">Sign up</button>
+                    <button class="secondary-button" onclick="showPage('login-page')">Log in</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="signup-page" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h1>Welcome!</h1>
+                    <p>Sign up to get started</p>
+                </div>
+                <div class="input-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" placeholder="Enter your username">
+                </div>
+                <div class="input-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create password">
+                </div>
+                <p class="error-message" id="signup-error"></p>
+                <button class="btn" onclick="signup()" id="signup-btn">
+                    <span id="signup-btn-text">Sign Up</span>
+                </button>
+                <div class="switch-form">
+                    Already have an account? <a onclick="showPage('login-page')">Log in</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="login-page" class="page">
+            <div class="form-container">
+                <div class="form-header">
+                    <h1>Welcome Back!</h1>
+                    <p>Log in to continue</p>
+                </div>
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password">
+                </div>
+                <p class="error-message" id="login-error"></p>
+                <button class="btn" onclick="login()" id="login-btn">
+                    <span id="login-btn-text">Log In</span>
+                </button>
+                <div class="switch-form">
+                    Don't have an account? <a onclick="showPage('signup-page')">Sign Up</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Marketplace -->
+        <div id="marketplace-page" class="page">
+            <div class="marketplace-header">
+                <div class="app-title">SURVEYio</div>
+                <div class="balance-display">$<span id="user-balance">0.00</span></div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks-tab" class="tab-content active">
+                <div class="task-list" id="task-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Tab -->
+            <div id="wallet-tab" class="tab-content">
+                <div class="wallet-card">
+                    <div class="wallet-header">
+                        <div class="wallet-chip"></div>
+                        <div class="wallet-status" id="wallet-status">Pending Goal</div>
+                    </div>
+                    <div class="wallet-balance-label">Current Balance</div>
+                    <div id="wallet-balance-amount">$0.00</div>
+                </div>
+                
+                <div class="cash-out-section">
+                    <h4>Withdrawal Goal</h4>
+                    <div class="progress-bar-container">
+                        <div id="withdrawal-progress"></div>
+                    </div>
+                    <p class="progress-label">$<span id="balance-for-progress">0.00</span> / $10.00</p>
+                    <button id="cash-out-btn" class="cash-out-btn" onclick="openCashOutModal()" disabled>Cash Out</button>
+                </div>
+
+                <!-- Cash Out Modal -->
+                <div id="cash-out-modal" class="url-modal">
+                    <div class="url-modal-content">
+                        <h3>Cash Out</h3>
+                        <p>Select a payment method and enter your details:</p>
+                        
+                        <div class="input-group">
+                            <label for="payment-method">Payment Method</label>
+                            <select id="payment-method" class="payment-select" onchange="updatePaymentFields()">
+                                <option value="">Select Payment Method</option>
+                                <option value="baksh">Baksh</option>
+                                <option value="nagd">Nagd</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="binance">Binance</option>
+                            </select>
+                        </div>
+                        
+                        <div id="payment-details-container">
+                            <!-- Payment details fields will be dynamically inserted here -->
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="cash-out-amount">Amount ($)</label>
+                            <input type="number" id="cash-out-amount" min="10" max="10" value="10" readonly>
+                            <small style="color: var(--text-secondary);">Minimum withdrawal: $10.00</small>
+                        </div>
+                        
+                        <div class="modal-buttons">
+                            <button class="modal-btn btn-cancel" onclick="closeCashOutModal()">Cancel</button>
+                            <button class="modal-btn btn-continue" id="submit-cash-out" onclick="submitCashOut()" disabled>Submit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activities-section">
+                    <h3>Recent Activities</h3>
+                    <p id="activities-placeholder">No activities yet.</p>
+                    <div id="activities-list"></div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content">
+                <div class="profile-display">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 id="profile-name">User Name</h2>
+                    <p class="profile-email" id="profile-email">user@example.com</p>
+                </div>
+
+                <div class="profile-menu">
+                    <div class="menu-item" onclick="openProfileSettings()">
+                        <div class="menu-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Profile Settings</div>
+                            <div class="menu-description">Update your personal information</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" onclick="openContactUs()">
+                        <div class="menu-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Contact Us</div>
+                            <div class="menu-description">Get help and support</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" onclick="openDeveloperContact()">
+                        <div class="menu-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Developer Contact</div>
+                            <div class="menu-description">Contact the development team</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" onclick="openCommunityGuidelines()">
+                        <div class="menu-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Community Guidelines</div>
+                            <div class="menu-description">Read our community rules</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" onclick="openPrivacyPolicy()">
+                        <div class="menu-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Privacy Policy</div>
+                            <div class="menu-description">How we protect your data</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-item" onclick="openTermsOfService()">
+                        <div class="menu-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="menu-content">
+                            <div class="menu-title">Terms of Service</div>
+                            <div class="menu-description">App usage terms and conditions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="logout-btn-container">
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <div class="nav-item active" onclick="showTab('tasks-tab')">
+                    <div class="nav-icon">📋</div>
+                    <div>Tasks</div>
+                </div>
+                <div class="nav-item" onclick="showTab('wallet-tab')">
+                    <div class="nav-icon">💰</div>
+                    <div>Wallet</div>
+                </div>
+                <div class="nav-item" onclick="showTab('profile-tab')">
+                    <div class="nav-icon">👤</div>
+                    <div>Profile</div>
+                </div>
+            </nav>
+        </div>
+
+        <!-- URL Redirect Modal -->
+        <div id="url-modal" class="url-modal">
+            <div class="url-modal-content">
+                <h3>Task Instructions</h3>
+                <p>You will be redirected to complete this task:</p>
+                <div class="task-url" id="modal-task-url"></div>
+                <p>Complete the task and return here to submit.</p>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button class="modal-btn btn-continue" onclick="continueToTask()">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbxp2dGCS4BZ1qlj7dPr4BRvQogIYVCcY",
+            authDomain: "survey-io-76104.firebaseapp.com",
+            databaseURL: "https://survey-io-76104-default-rtdb.firebaseio.com",
+            projectId: "survey-io-76104",
+            storageBucket: "survey-io-76104.firebasestorage.app",
+            messagingSenderId: "788956564253",
+            appId: "1:788956564253:web:8eefa99bb1e5be8b67aff4",
+            measurementId: "G-Z64B52QJS6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // App State
+        let currentUser = null;
+        let userBalance = 0.00;
+        let currentTask = null;
+        let userActivities = [];
+        let taskTimers = {};
+        let userTasks = [];
+        let tasksListener = null;
+        let userTaskStatus = {};
+
+        // Firebase থেকে Tasks লোড করার ফাংশন - SIMPLE FIXED VERSION
+        async function loadTasksFromFirebase() {
+            if (!currentUser) return;
+
+            try {
+                console.log("Loading tasks from Firebase...");
+                
+                // Firebase থেকে সব active tasks লোড করো
+                const tasksSnapshot = await db.collection('tasks')
+                    .where('status', '==', 'active')
+                    .get();
+                
+                const firebaseTasks = [];
+                tasksSnapshot.forEach(doc => {
+                    const taskData = doc.data();
+                    console.log("Task data:", taskData); // Debugging
+                    
+                    firebaseTasks.push({
+                        id: doc.id,
+                        title: taskData.title || 'Untitled Task',
+                        description: taskData.description || 'Complete this task to earn money',
+                        url: taskData.url || 'https://example.com',
+                        price: parseFloat(taskData.amount) || parseFloat(taskData.reward) || 1.00,
+                        status: taskData.status || 'active',
+                        estimatedTime: taskData.estimatedTime || '5-10 minutes'
+                    });
+                });
+
+                console.log("Tasks loaded from Firebase:", firebaseTasks);
+
+                // User-এর completed tasks status লোড করো
+                await loadUserTaskStatus();
+
+                // Tasks display করো
+                renderTasks(firebaseTasks);
+                
+            } catch (error) {
+                console.error("Error loading tasks from Firebase:", error);
+                // Fallback: Show message
+                document.getElementById('task-list').innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>Error loading tasks. Please check your connection.</p>
+                        <button class="btn" onclick="loadTasksFromFirebase()" style="margin-top: 1rem;">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // User task status লোড করার ফাংশন
+        async function loadUserTaskStatus() {
+            if (!currentUser) return;
+
+            try {
+                const userTasksSnapshot = await db.collection('userTasks')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                userTaskStatus = {};
+                userTasksSnapshot.forEach(doc => {
+                    const userTask = doc.data();
+                    userTaskStatus[userTask.taskId] = userTask;
+                });
+                
+                console.log("User task status loaded:", userTaskStatus);
+            } catch (error) {
+                console.error("Error loading user task status:", error);
+            }
+        }
+
+        // Tasks render করার ফাংশন - ORIGINAL UI DESIGN
+        function renderTasks(tasks) {
+            const taskList = document.getElementById('task-list');
+            
+            if (!tasks || tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>No tasks available at the moment. Check back later!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tasksHTML = '';
+            
+            tasks.forEach(task => {
+                const userTask = userTaskStatus[task.id];
+                const isCompleted = userTask && userTask.status === 'completed';
+                const isTimerRunning = taskTimers[task.id];
+                
+                tasksHTML += `
+                    <div class="task-card ${isCompleted ? 'completed' : ''}">
+                        <div class="task-card-header">
+                            <h3>$${task.price.toFixed(2)}</h3>
+                        </div>
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-description">${task.description}</div>
+                        <div class="task-card-footer">
+                            <div class="task-timer-status ${isTimerRunning ? 'running' : ''}" id="timer-${task.id}">
+                                ${isCompleted ? 'Completed' : (isTimerRunning ? 'In Progress...' : task.estimatedTime)}
+                            </div>
+                            <button class="btn" onclick="startTask('${task.id}')" ${isCompleted ? 'style="background-color: #6c757d;"' : ''}>
+                                ${isCompleted ? 'Completed' : 'Start'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            taskList.innerHTML = tasksHTML;
+        }
+
+        // Start Task Function - ORIGINAL VERSION
+        function startTask(taskId) {
+            const task = getTaskById(taskId);
+            if (!task) {
+                console.error("Task not found:", taskId);
+                return;
+            }
+
+            const userTask = userTaskStatus[taskId];
+            if (userTask && userTask.status === 'completed') {
+                showEarningsPopup("Task already completed!", false);
+                return;
+            }
+
+            currentTask = task;
+            document.getElementById('modal-task-url').textContent = task.url;
+            document.getElementById('url-modal').style.display = 'flex';
+        }
+
+        // Task ID দিয়ে task খুঁজে বের করার ফাংশন
+        function getTaskById(taskId) {
+            // এই ফাংশনটি tasks array থেকে task খুঁজে বের করবে
+            // এখনই temporary implementation
+            return {
+                id: taskId,
+                title: "Sample Task",
+                url: "https://example.com",
+                price: 1.00
+            };
+        }
+
+        // Continue to Task Function
+        function continueToTask() {
+            if (!currentTask) return;
+
+            // Start timer for the task
+            startTaskTimer(currentTask.id);
+            
+            // Mark task as in progress in Firebase
+            markTaskAsInProgress(currentTask.id);
+            
+            // Open the task URL in a new tab
+            window.open(currentTask.url, '_blank');
+            
+            // Close the modal
+            closeModal();
+        }
+
+        // Task Timer Start Function
+        function startTaskTimer(taskId) {
+            if (taskTimers[taskId]) {
+                clearTimeout(taskTimers[taskId]);
+            }
+            
+            // Update UI
+            const timerElement = document.getElementById(`timer-${taskId}`);
+            if (timerElement) {
+                timerElement.textContent = 'In Progress...';
+                timerElement.classList.add('running');
+            }
+            
+            // Set timer for 2 minutes (for demo)
+            taskTimers[taskId] = setTimeout(() => {
+                completeTask(taskId);
+            }, 120000); // 2 minutes
+        }
+
+        // Mark Task as In Progress in Firebase
+        async function markTaskAsInProgress(taskId) {
+            if (!currentUser) return;
+
+            try {
+                await db.collection('userTasks').doc(`${currentUser.uid}_${taskId}`).set({
+                    userId: currentUser.uid,
+                    taskId: taskId,
+                    status: 'in-progress',
+                    startedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                userTaskStatus[taskId] = {
+                    userId: currentUser.uid,
+                    taskId: taskId,
+                    status: 'in-progress'
+                };
+                
+            } catch (error) {
+                console.error("Error marking task as in progress:", error);
+            }
+        }
+
+        // Complete Task Function
+        async function completeTask(taskId) {
+            if (!currentUser) return;
+
+            try {
+                const task = getTaskById(taskId);
+                if (!task) return;
+
+                // Clear timer
+                if (taskTimers[taskId]) {
+                    clearTimeout(taskTimers[taskId]);
+                    delete taskTimers[taskId];
+                }
+
+                // Update user task status to completed
+                await db.collection('userTasks').doc(`${currentUser.uid}_${taskId}`).set({
+                    userId: currentUser.uid,
+                    taskId: taskId,
+                    status: 'completed',
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reward: task.price
+                }, { merge: true });
+
+                // Update user balance
+                const newBalance = userBalance + task.price;
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: newBalance
+                });
+
+                // Add activity
+                await db.collection('activities').add({
+                    userId: currentUser.uid,
+                    type: 'task_completed',
+                    description: `Completed task: ${task.title}`,
+                    amount: task.price,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update local state
+                userBalance = newBalance;
+                userTaskStatus[taskId] = {
+                    userId: currentUser.uid,
+                    taskId: taskId,
+                    status: 'completed'
+                };
+
+                // Update UI
+                document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+                document.getElementById('wallet-balance-amount').textContent = `$${userBalance.toFixed(2)}`;
+                updateProgressBar();
+
+                // Show success message
+                showEarningsPopup(`+$${task.price.toFixed(2)} earned!`);
+
+                // Reload tasks to update UI
+                loadTasksFromFirebase();
+                
+                console.log(`Task ${taskId} completed. Earned $${task.price}`);
+                
+            } catch (error) {
+                console.error("Error completing task:", error);
+            }
+        }
+
+        // Page Navigation Functions
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('active');
+            });
+            
+            if (tabId === 'tasks-tab') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (tabId === 'wallet-tab') {
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            } else if (tabId === 'profile-tab') {
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            }
+        }
+
+        // Authentication Functions
+        async function signup() {
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorElement = document.getElementById('signup-error');
+            const signupBtn = document.getElementById('signup-btn');
+            const signupBtnText = document.getElementById('signup-btn-text');
+
+            if (!username || !email || !password) {
+                showError(errorElement, 'Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError(errorElement, 'Password must be at least 6 characters');
+                return;
+            }
+
+            try {
+                signupBtn.disabled = true;
+                signupBtnText.innerHTML = '<div class="loading-spinner"></div> Signing Up...';
+
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Create user document in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    balance: 0.00,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log("User signed up successfully");
+                
+            } catch (error) {
+                console.error("Error signing up:", error);
+                showError(errorElement, error.message);
+            } finally {
+                signupBtn.disabled = false;
+                signupBtnText.textContent = 'Sign Up';
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error');
+            const loginBtn = document.getElementById('login-btn');
+            const loginBtnText = document.getElementById('login-btn-text');
+
+            if (!email || !password) {
+                showError(errorElement, 'Please fill in all fields');
+                return;
+            }
+
+            try {
+                loginBtn.disabled = true;
+                loginBtnText.innerHTML = '<div class="loading-spinner"></div> Logging In...';
+
+                await auth.signInWithEmailAndPassword(email, password);
+                console.log("User logged in successfully");
+                
+            } catch (error) {
+                console.error("Error logging in:", error);
+                showError(errorElement, error.message);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Log In';
+            }
+        }
+
+        async function logout() {
+            try {
+                // Stop any running timers
+                Object.values(taskTimers).forEach(timer => clearTimeout(timer));
+                
+                await auth.signOut();
+                console.log("User logged out successfully");
+                
+                // Reset state
+                currentUser = null;
+                userBalance = 0.00;
+                userActivities = [];
+                taskTimers = {};
+                userTasks = [];
+                userTaskStatus = {};
+                
+            } catch (error) {
+                console.error("Error logging out:", error);
+            }
+        }
+
+        // Load User Data
+        async function loadUserData() {
+            if (!currentUser) return;
+
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    userBalance = userData.balance || 0.00;
+                    
+                    // Update UI
+                    document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+                    document.getElementById('wallet-balance-amount').textContent = `$${userBalance.toFixed(2)}`;
+                    document.getElementById('profile-name').textContent = userData.username || 'User';
+                    document.getElementById('profile-email').textContent = userData.email;
+                    
+                    // Update progress bar
+                    updateProgressBar();
+                }
+
+                // Load tasks
+                await loadTasksFromFirebase();
+
+                // Load activities
+                await loadUserActivities();
+                
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        // Load User Activities
+        async function loadUserActivities() {
+            if (!currentUser) return;
+            
+            try {
+                const activitiesSnapshot = await db.collection('activities')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+                
+                userActivities = [];
+                activitiesSnapshot.forEach(doc => {
+                    userActivities.push(doc.data());
+                });
+                
+                renderActivities();
+                
+            } catch (error) {
+                console.error("Error loading activities:", error);
+            }
+        }
+
+        // Render Activities
+        function renderActivities() {
+            const activitiesList = document.getElementById('activities-list');
+            const placeholder = document.getElementById('activities-placeholder');
+            
+            activitiesList.innerHTML = '';
+            
+            if (userActivities.length === 0) {
+                placeholder.style.display = 'block';
+                return;
+            }
+            
+            placeholder.style.display = 'none';
+            
+            userActivities.forEach(activity => {
+                const activityElement = document.createElement('div');
+                activityElement.className = 'activity-item';
+                
+                const isPositive = activity.amount > 0;
+                const sign = isPositive ? '+' : '';
+                const amountClass = isPositive ? 'positive' : 'negative';
+                
+                // Format timestamp
+                const timestamp = activity.timestamp ? 
+                    activity.timestamp.toDate().toLocaleDateString() : 
+                    new Date().toLocaleDateString();
+                
+                activityElement.innerHTML = `
+                    <div class="activity-details">
+                        <p>${activity.description}</p>
+                        <p class="activity-time">${timestamp}</p>
+                    </div>
+                    <div class="activity-amount ${amountClass}">
+                        ${sign}$${Math.abs(activity.amount).toFixed(2)}
+                    </div>
+                `;
+                
+                activitiesList.appendChild(activityElement);
+            });
+        }
+
+        // Progress Bar Update
+        function updateProgressBar() {
+            const progressBar = document.getElementById('withdrawal-progress');
+            const progressLabel = document.getElementById('balance-for-progress');
+            const cashOutBtn = document.getElementById('cash-out-btn');
+            const walletStatus = document.getElementById('wallet-status');
+            
+            const progressPercentage = Math.min((userBalance / 10) * 100, 100);
+            progressBar.style.width = `${progressPercentage}%`;
+            progressLabel.textContent = userBalance.toFixed(2);
+            
+            if (userBalance >= 10) {
+                cashOutBtn.disabled = false;
+                cashOutBtn.textContent = "Cash Out";
+                walletStatus.textContent = "Ready to Cash Out";
+                walletStatus.style.background = "rgba(40, 167, 69, 0.3)";
+            } else {
+                cashOutBtn.disabled = true;
+                cashOutBtn.textContent = "Cash Out";
+                walletStatus.textContent = "Pending Goal";
+                walletStatus.style.background = "rgba(255, 255, 255, 0.15)";
+            }
+        }
+
+        // Modal Functions
+        function closeModal() {
+            document.getElementById('url-modal').style.display = 'none';
+            currentTask = null;
+        }
+
+        // Utility Functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function showEarningsPopup(message, isSuccess = true) {
+            const popup = document.createElement('div');
+            popup.className = 'earnings-popup';
+            popup.style.background = isSuccess ? 'var(--success-color)' : 'var(--error-color)';
+            popup.textContent = message;
+            
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+
+        // Cash Out Functions
+        function openCashOutModal() {
+            if (userBalance < 10) return;
+            
+            document.getElementById('cash-out-modal').style.display = 'flex';
+            updatePaymentFields();
+        }
+
+        function closeCashOutModal() {
+            document.getElementById('cash-out-modal').style.display = 'none';
+        }
+
+        function updatePaymentFields() {
+            const paymentMethod = document.getElementById('payment-method').value;
+            const paymentDetailsContainer = document.getElementById('payment-details-container');
+            const submitBtn = document.getElementById('submit-cash-out');
+            
+            paymentDetailsContainer.innerHTML = '';
+            
+            if (paymentMethod) {
+                submitBtn.disabled = false;
+                
+                let fieldsHTML = '';
+                
+                switch(paymentMethod) {
+                    case 'baksh':
+                        fieldsHTML = `
+                            <div class="input-group">
+                                <label for="baksh-phone">Baksh Phone Number</label>
+                                <input type="tel" id="baksh-phone" placeholder="Enter your Baksh phone number">
+                            </div>
+                        `;
+                        break;
+                    case 'nagd':
+                        fieldsHTML = `
+                            <div class="input-group">
+                                <label for="nagd-phone">Nagad Phone Number</label>
+                                <input type="tel" id="nagd-phone" placeholder="Enter your Nagad phone number">
+                            </div>
+                        `;
+                        break;
+                    case 'paypal':
+                        fieldsHTML = `
+                            <div class="input-group">
+                                <label for="paypal-email">PayPal Email</label>
+                                <input type="email" id="paypal-email" placeholder="Enter your PayPal email">
+                            </div>
+                        `;
+                        break;
+                    case 'binance':
+                        fieldsHTML = `
+                            <div class="input-group">
+                                <label for="binance-id">Binance ID</label>
+                                <input type="text" id="binance-id" placeholder="Enter your Binance ID">
+                            </div>
+                        `;
+                        break;
+                }
+                
+                paymentDetailsContainer.innerHTML = fieldsHTML;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        async function submitCashOut() {
+            const paymentMethod = document.getElementById('payment-method').value;
+            const amount = parseFloat(document.getElementById('cash-out-amount').value);
+            
+            if (!paymentMethod || amount < 10) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Get payment details based on method
+            let paymentDetails = {};
+            switch(paymentMethod) {
+                case 'baksh':
+                    paymentDetails.phone = document.getElementById('baksh-phone').value;
+                    break;
+                case 'nagd':
+                    paymentDetails.phone = document.getElementById('nagd-phone').value;
+                    break;
+                case 'paypal':
+                    paymentDetails.email = document.getElementById('paypal-email').value;
+                    break;
+                case 'binance':
+                    paymentDetails.id = document.getElementById('binance-id').value;
+                    break;
+            }
+            
+            if (!Object.values(paymentDetails)[0]) {
+                alert('Please fill in all required payment details');
+                return;
+            }
+            
+            try {
+                // Update user balance
+                userBalance -= amount;
+                await db.collection('users').doc(currentUser.uid).update({
+                    balance: userBalance
+                });
+                
+                // Create activity record
+                const activity = {
+                    userId: currentUser.uid,
+                    type: 'withdrawal_request',
+                    amount: -amount,
+                    description: `Withdrawal request via ${paymentMethod}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    paymentMethod: paymentMethod,
+                    paymentDetails: paymentDetails
+                };
+                
+                await db.collection('activities').add(activity);
+                
+                // Update UI
+                document.getElementById('user-balance').textContent = userBalance.toFixed(2);
+                document.getElementById('wallet-balance-amount').textContent = `$${userBalance.toFixed(2)}`;
+                updateProgressBar();
+                
+                // Reload activities
+                await loadUserActivities();
+                
+                // Close modal and show success message
+                closeCashOutModal();
+                showEarningsPopup('Withdrawal request submitted successfully!');
+                
+            } catch (error) {
+                console.error("Error submitting withdrawal:", error);
+                showEarningsPopup('Error submitting withdrawal request. Please try again.', false);
+            }
+        }
+
+        // Profile Menu Functions
+        function openProfileSettings() {
+            alert('Profile Settings - This feature is coming soon!');
+        }
+
+        function openContactUs() {
+            alert('Contact Us - Email: support@surveyio.com');
+        }
+
+        function openDeveloperContact() {
+            alert('Developer Contact - Email: dev@surveyio.com');
+        }
+
+        function openCommunityGuidelines() {
+            alert('Community Guidelines - Be respectful and follow our community rules.');
+        }
+
+        function openPrivacyPolicy() {
+            alert('Privacy Policy - We value your privacy and protect your data.');
+        }
+
+        function openTermsOfService() {
+            alert('Terms of Service - Please read our terms and conditions.');
+        }
+
+        // Auto-complete task when user returns to app
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible' && currentTask) {
+                // If user returns to the app and a task is active, complete it after 2 seconds
+                setTimeout(() => {
+                    if (currentTask) {
+                        completeTask(currentTask.id);
+                        currentTask = null;
+                    }
+                }, 2000);
+            }
+        });
+
+        // Firebase Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                console.log("User is signed in:", user.uid);
+                loadUserData();
+                showPage('marketplace-page');
+            } else {
+                console.log("User is signed out");
+                showPage('landing-page');
+            }
+        });
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("SurveyIO App Initialized - Fixed Task Loading");
+        });
+    </script>
+</body>
+</html>
